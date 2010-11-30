@@ -1,0 +1,61 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+<description>
+Lustre Client Node.
+</description>
+
+<changelog>
+</changelog>
+
+<main>
+</main>
+
+<package>kernel-lustre</package>
+<package>lustre-modules</package>
+<package>lustre</package>
+
+<post>
+	# Add the new kernel to the grub-orig.conf which rocks boots from in normal conditions
+	/sbin/grubby --grub --add-kernel=/boot/vmlinuz-2.6.18-164.11.1.el5_lustre.1.8.3 \
+		--initrd=/boot/initrd-2.6.18-164.11.1.el5_lustre.1.8.3.img --make-default \
+		--config-file=/boot/grub/grub-orig.conf  --copy-default --title=Rocks-Lustre
+
+	# Add the new kernel to the grub.conf which rocks boots from the first time
+        /sbin/grubby --grub --add-kernel=/boot/vmlinuz-2.6.18-164.11.1.el5_lustre.1.8.3 \
+                --initrd=/boot/initrd-2.6.18-164.11.1.el5_lustre.1.8.3.img --make-default \
+                --config-file=/boot/grub/grub.conf  --copy-default --title=Rocks-Lustre
+
+	# Loads up and configures Lustre Networking
+        <file name="/etc/modprobe.d/lustre.conf" perms="0644">
+<include file="/state/partition1/apps/lustre/lustre-modprobe.conf"></include>
+        </file>
+
+	mkdir /scratch
+
+	# Modprobe doesn't know what to do with the RCS files.
+	rm -Rf /etc/modprobe.d/RCS
+	rm -Rf /etc/modprobe.d/lustre.conf,v
+
+        <file name="/etc/init.d/lnet" perms="0755">
+<include file="/state/partition1/apps/lustre/lnet-init.sh"></include>
+        </file>
+
+        /sbin/chkconfig --add lnet
+        /sbin/chkconfig lnet on
+
+        <file name="/etc/init.d/lustre" perms="0755">
+<include file="/state/partition1/apps/lustre/lustre-init.sh"></include>
+        </file>
+	
+        /sbin/chkconfig --add lustre
+        /sbin/chkconfig lustre on
+
+<file name="/etc/fstab" mode="append">
+X.X.X.X@o2ib:X.X.X.Y@o2ib:/scratch /scratch lustre defaults,noauto      0 0
+</file>
+
+</post>
+
+</kickstart>

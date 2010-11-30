@@ -1,0 +1,198 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+  
+<description>
+	Login nodes.
+	Allows logins from hpc.es.its.nyu.edu.
+	Is allowed to submit Jobs to the scheduler.
+</description>
+
+<changelog>
+	See the SVN commits.
+</changelog>
+
+<main>
+   <auth>--enableshadow --enablemd5 --enablekrb5 --krb5realm NYU.EDU --krb5kdc k1.nyu.edu:88 --krb5adminserver k1.nyu.edu:749</auth>
+</main>
+  
+<!-- ############### System Packages -->
+
+<!-- lsscsi shows scsi information about connections and devices -->
+<package>lsscsi</package>
+<!-- fancy top replacement -->
+<package>htop</package>
+
+<!-- OpenSM Infiniband Fabric Manager -->
+<package>opensm</package>
+<package>opensm-libs</package>
+<package>libibcommon</package>
+<package>libibumad</package>
+
+<!-- Nagios NRPE -->
+<package>nagios-plugins</package>
+<package>nagios-plugins-python</package>
+<package>nagios-plugins-check_free</package>
+<package>nagios-plugins-disk</package>
+<package>nagios-plugins-load</package>
+<package>nagios-plugins-ntp</package>
+<package>nagios-plugins-nyu</package>
+<package>nagios-plugins-procs</package>
+<package>nrpe</package>
+
+<!-- ############### END System Packages -->
+
+<!-- ############### User Packages -->
+ 
+<!-- SVN -->
+<package>subversion</package>
+<package>neon</package>
+
+<!-- perl-Curses is needed for pbstop -->
+<package>perl-Curses</package>
+<package>perl-PBS</package>
+
+<!-- So people can look at the pretty pictures. -->
+<package>xloadimage</package>
+
+<!-- High Performance SSH -->
+<package>openssh-hpn</package>
+<package>openssh-hpn-server</package>
+<package>openssh-hpn-clients</package>
+<package>libedit</package>
+
+<package>compat-libstdc++</package>
+<package>joe</package>
+<package>libXpm-devel</package>
+<package>libXp</package>
+<package>readline-devel</package>
+<package>zlib-devel</package>
+<package>cairo-devel</package>
+
+
+<!-- ############### END User Packages -->
+
+<post>
+
+# Remove the std openssh bcause anaconda is always going to install it.
+rpm -e --nodeps openssh openssh-server openssh-clients
+# Re-enable the sshd service.
+/sbin/chkconfig --add sshd
+
+<!-- Turn on the OpenSM Subnet Manager daemon at boot -->
+/sbin/chkconfig --add opensmd
+/sbin/chkconfig --level 35 opensmd on
+
+<!-- Make the mount point for Archive -->
+mkdir /archive 
+
+<!-- Make the mount point for scratch -->
+mkdir /scratch
+
+# Change the nfsv4 domain
+/bin/sed -i 's/localdomain/es\.its\.nyu\.edu/' /etc/idmapd.conf
+
+<file name="/etc/motd" mode="append">
+</file>
+
+# Create ssh keys the first time a user logs in
+<file name="/etc/profile.d/ssh-key.sh" perms="0755">
+        <include file="/etc/profile.d/ssh-key.sh"></include>
+</file>
+
+<file name="/etc/profile.d/ssh-key.csh" perms="0755">
+        <include file="/etc/profile.d/ssh-key.csh"></include>
+</file>
+
+# Expired Shell and Suspended Shell messages
+<file name="/usr/local/bin/expiredshell" perms="0755">
+        <include file="/usr/local/bin/expiredshell"></include>
+</file>
+
+<file name="/usr/local/bin/suspendedshell" perms="0755">
+        <include file="/usr/local/bin/suspendedshell"></include>
+</file>
+
+# Set ulimit on login nodes
+<file name="/etc/profile.d/ulimit.sh" perms="0755">
+	<include file="/etc/profile.d/ulimit.sh"></include>
+</file>
+
+# Put PBS and MAUI stuff in the PATH
+<file name="/etc/profile.d/pbs-maui-path.sh" perms="0755">
+        <include file="/etc/profile.d/pbs-maui-path.sh"></include>
+</file>
+
+<file name="/etc/profile.d/pbs-maui-path.csh" perms="0755">
+        <include file="/etc/profile.d/pbs-maui-path.csh"></include>
+</file>
+
+# Put paths to /scratch/user and /archive/user in the env
+<file name="/etc/profile.d/disk.csh" perms="0755">
+        <include file="/export/post/disk.csh"></include>
+</file>
+
+<file name="/etc/profile.d/disk.sh" perms="0755">
+        <include file="/export/post/disk.sh"></include>
+</file>
+
+# pbstop
+<file name="/usr/bin/pbstop" perms="0755">
+        <include file="/usr/bin/pbstop"></include>
+</file>
+
+<file name="/etc/pbstoprc" perms="0755">
+        <include file="/etc/pbstoprc"></include>
+</file>
+
+# The Great Firewall
+<file name="/etc/sysconfig/iptables">
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+# ========================================================================
+# Internal
+-A INPUT -i eth0 -j ACCEPT
+-A INPUT -i ib0  -j ACCEPT
+-A INPUT -i lo   -j ACCEPT
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmp --icmp-type any -j ACCEPT
+
+# ========================================================================
+# Allowed hosts
+# -A INPUT -s X.X.X.X -m state --state NEW -p tcp --dport ssh -j ACCEPT
+
+
+-A INPUT -p udp --dport 0:1024 -j REJECT
+-A INPUT -p tcp --dport 0:1024 -j REJECT
+-A INPUT -p udp --dport 8649   -j REJECT
+COMMIT
+
+</file>
+
+/sbin/chkconfig nrpe on
+
+<file name="/etc/nagios/nrpe.cfg">
+log_facility=daemon
+pid_file=/var/run/nrpe.pid
+server_port=5666
+nrpe_user=nrpe
+nrpe_group=nrpe
+allowed_hosts=127.0.0.1,X.X.X.X
+dont_blame_nrpe=0
+
+debug=0
+command_timeout=60
+connection_timeout=300
+
+command[check_load]=/usr/lib64/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_disk]=/usr/lib64/nagios/plugins/check_disk -w 10% -c 5% -p / -p /var -p /state/partition1
+command[check_free]=/usr/lib64/nagios/plugins/check_free.py -w99 -c100
+command[check_system_time]=/usr/lib64/nagios/plugins/check_ntp -w 3600 -c 7200 -H tick.nyu.edu
+</file>
+
+</post>
+
+</kickstart> 

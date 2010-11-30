@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no"?>
+
+<graph>
+
+<description>
+Login node configuration extends the compute node configuration.
+</description>
+
+<changelog>
+</changelog>
+
+<edge from="compute-appliance">
+        <to>login</to>
+</edge>
+
+<order gen="kgen" head="TAIL">
+        <tail>login</tail>
+</order>
+
+</graph>

@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+
+<graph>
+
+<description>
+	 All compute appliances (storage, login, compute) get global-packages 
+</description>
+
+<changelog>
+</changelog>
+
+<edge from="compute-appliance">
+        <to>global-packages</to>
+</edge> 
+
+</graph>

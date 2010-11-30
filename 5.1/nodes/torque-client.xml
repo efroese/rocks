@@ -1,0 +1,59 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+  <description>
+	Customizations for the Torque Roll
+  </description>
+  
+  <changelog>
+	See the SVN revisions for this file.
+  </changelog>
+
+  <package>torque</package>
+  <package>torque-mom</package>
+  <package>torque-client</package>
+
+  <post>
+
+        <file name="/etc/pbs.conf" perms="0644">
+pbs_home=/opt/torque
+pbs_exec=/opt/torque
+start_mom=1
+start_sched=0
+start_server=0
+	</file>
+
+        <file name="/opt/torque/mom_priv/config" perms="0644">
+$pbsserver crunch.local
+$usecp crunch.its.nyu.edu:/home /home
+	</file>
+
+        <file name="/etc/init.d/pbs_mom" perms="0755">
+<include file="/share/apps/admins/torque/pbs_mom" />
+        </file>
+
+	/sbin/chkconfig --add pbs_mom
+	/sbin/chkconfig pbs_mom on
+
+	<file name="/opt/torque/mom_priv/prologue" perms="0755">
+<include file="/share/apps/admins/pro-epilogue/prologue" />
+        </file>
+
+	<file name="/opt/torque/mom_priv/prologue.parallel" perms="0755">
+<include file="/share/apps/admins/pro-epilogue/prologue.parallel" />
+        </file>
+
+	<file name="/opt/torque/mom_priv/epilogue" perms="0755">
+<include file="/share/apps/admins/pro-epilogue/epilogue" />
+        </file>
+
+	<file name="/opt/torque/mom_priv/epilogue.parallel" perms="0755">
+<include file="/share/apps/admins/pro-epilogue/epilogue.parallel" />
+        </file>
+
+	<file name="/etc/ld.so.conf.d/torque.conf" perms="0644">
+/opt/torque/lib
+        </file>
+  </post>
+
+</kickstart> 

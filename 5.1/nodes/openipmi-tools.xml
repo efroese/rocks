@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+<description>
+	OpenIPMI-tools package.
+	Remote lights out administration over the network.
+</description>
+
+<changelog>
+</changelog>
+
+<package>OpenIPMI</package>
+<package>OpenIPMI-libs</package>
+<package>OpenIPMI-tools</package>
+
+<post>
+/sbin/chkconfig ipmi on
+</post>
+
+</kickstart> 
+

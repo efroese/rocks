@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+  <description>
+	Compute node install customizations.
+  </description>
+  
+  <changelog>
+  </changelog>
+
+  <package disable="1">logwatch</package>
+  <package disable="1">mlocate</package>
+
+  <!-- ############## SysAdmin stuff ############## -->
+  <package>htop</package>
+  <package>sysstat</package>
+  <!-- ############## SysAdminstuff ############## -->
+
+  <post>
+        <file name="/etc/sysctl.conf" mode="append">
+# mpiexec file descriptor addition
+fs.file-max = 65536
+        </file>
+
+        <file name="/etc/pam.d/sshd" mode="append">
+session    required     pam_limits.so
+        </file>
+
+	# Force allow untrusted X11 Forwarding
+	<file name="/etc/ssh/ssh_config" mode="append">
+ForwardX11Trusted       yes
+	</file>
+
+	/sbin/chkconfig snmpd off
+	/etc/init.d/snmpd stop
+
+	<file name="/etc/yum.repos.d/rocks-local.repo" perms="0444">
+<include file="/etc/yum.repos.d/rocks-local.repo" />
+	</file>
+
+  </post>
+
+</kickstart> 

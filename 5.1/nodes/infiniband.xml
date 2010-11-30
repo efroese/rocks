@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+	<description>
+	Configuration needed to use Infiniband fabric.
+	</description>
+
+	<copyright>
+	</copyright>
+
+	<changelog>
+	</changelog>
+
+	<package>compat-dapl</package>
+	<package>compat-dapl-devel</package>
+	<package>compat-dapl-devel-static</package>
+	<package>compat-dapl-utils</package>
+	<package>dapl</package>
+	<package>dapl-devel</package>
+	<package>dapl-devel-static</package>
+	<package>dapl-utils</package>
+	<package>ib-bonding</package>
+	<package>ibutils</package>
+	<package>infiniband-diags</package>
+	<package>libcxgb3</package>
+	<package>libcxgb3-devel</package>
+	<package>libibcommon</package>
+	<package>libibcommon-devel</package>
+	<package>libibcommon-static</package>
+	<package>libibmad</package>
+	<package>libibmad-devel</package>
+	<package>libibmad-static</package>
+	<package>libibumad</package>
+	<package>libibumad-devel</package>
+	<package>libibumad-static</package>
+	<package>libibverbs</package>
+	<package>libibverbs-devel</package>
+	<package>libibverbs-devel-static</package>
+	<package>libibverbs-utils</package>
+	<package>libipathverbs</package>
+	<package>libipathverbs-devel</package>
+	<package>libmlx4</package>
+	<package>libmlx4-devel</package>
+	<package>libmthca</package>
+	<package>libmthca-devel-static</package>
+	<package>libnes</package>
+	<package>libnes-devel-static</package>
+	<package>librdmacm</package>
+	<package>librdmacm-devel</package>
+	<package>librdmacm-utils</package>
+	<package>mpi-selector</package>
+	<package>mpitests_mvapich2_gcc</package>
+	<package>mpitests_mvapich_gcc</package>
+	<package>mpitests_openmpi_gcc</package>
+	<package>mstflint</package>
+	<package>mvapich2_gcc</package>
+	<package>mvapich_gcc</package>
+	<package>mvapich_intel</package>
+	<package>ofed-docs</package>
+	<package>ofed-scripts</package>
+	<package>openmpi_gcc</package>
+	<package>opensm</package>
+	<package>opensm-devel</package>
+	<package>opensm-libs</package>
+	<package>opensm-static</package>
+	<package>perftest</package>
+	<package>qperf</package>
+
+	<post>
+	/sbin/chkconfig --level 35 openibd on
+	</post>
+
+</kickstart>
